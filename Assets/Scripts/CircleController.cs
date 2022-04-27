@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 //具体逻辑，玩家的Input->command->人物的控制
@@ -11,32 +7,45 @@ using UnityEngine;
 /// </summary>
 public class CircleController : MonoBehaviour
 {
+    [SerializeField]
     private CircleInput circleInput;
-    public CellMaker cellMaker;
-    public CommandsCarrier commandsCarrier;
-    private int startFrame = 0;
+    public CellMaker cellMaker; 
+    private int id;
+    public int GetID() { return id;}
+    private int startFrame;
+
+    //通过临时变量减少Update的消耗
+    private Command tempCommd;
     private void Start()
     {
-        circleInput = new CircleInput(this);
+        //初始化输入模块
+        circleInput.SetController(this);
+
+        //存入ReplayManager中
+        id=ReplayManager.GetInstance().InputController(this);
+        
         //位置归到地图原点
-        transform.position = new Vector3(cellMaker.transform.position.x, cellMaker.transform.position.y, 0);
+        Rest();
     }
     void Update()
     {
-        if (commandsCarrier.isLoad)
+        if (ReplayManager.GetInstance().isReplay)
         {
             return;
         }
-        MoveCommand command=circleInput.GetMoveCommand();
-        if (command != null)
+        
+        tempCommd=circleInput.GetMoveCommand();
+        if (tempCommd != null)
         {
-            command.Excute();
-            commandsCarrier.AddCommands(command); 
+            tempCommd.Excute();
+            ReplayManager.GetInstance().InputCommand(tempCommd.CreatCommandData());
+            tempCommd = null;
         }
     }
     public void Rest()
     {
-        transform.position = new Vector3(cellMaker.transform.position.x, cellMaker.transform.position.y, 0);
+        var initialPos = cellMaker.transform.position;
+        transform.position = new Vector3(initialPos.x, initialPos.y, 0);
         startFrame = Time.frameCount;
     }
     public int GetRealFrameCount()
@@ -45,18 +54,28 @@ public class CircleController : MonoBehaviour
     }
 
     #region 通过命令数据控制小圆
+    /// <summary>
+    /// 根据命令信息来控制小圆
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="isExcute"></param>
     public void ControlByCommandData(CommandData data,bool isExcute=true)
     {
-        Command command = ParseCommandData(data);
+        tempCommd = ParseCommandData(data);
         if (isExcute)
         {
-            command.Excute();
+            tempCommd.Excute();
         }
         else
         {
-            command.Undo();
+            tempCommd.Undo();
         }
     }
+    /// <summary>
+    /// 根据data创建Command类
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
     private Command ParseCommandData(CommandData data)
     {
         switch (data.commandEnum)
@@ -66,11 +85,16 @@ public class CircleController : MonoBehaviour
         }
         return null;
     }
+    /// <summary>
+    /// 根据vecString解析Vector3
+    /// </summary>
+    /// <param name="vecString"></param>
+    /// <returns></returns>
     private Vector3 Vector3Parse(string vecString)
     {
         vecString = vecString.Replace('(',  ' ').Replace(')',' ');
         string[] nums = vecString.Split(',');
         return new Vector3(float.Parse(nums[0]), float.Parse(nums[1]), float.Parse(nums[2]));
     }
-      #endregion
+    #endregion
 }

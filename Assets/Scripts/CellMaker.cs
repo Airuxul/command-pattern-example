@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// 地图类，绘制地图
+/// </summary>
 public class CellMaker : MonoBehaviour
 {
     public int xCount=10;

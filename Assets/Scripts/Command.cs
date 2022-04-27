@@ -1,9 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using Unity.Mathematics;
 using UnityEngine;
+
+
+/// <summary>
+/// 命令接口
+/// </summary>
 public interface ICommand
 {
     void Excute();
@@ -11,9 +12,14 @@ public interface ICommand
 
     CommandData CreatCommandData();
 }
+
+/// <summary>
+/// 命令抽象类
+/// </summary>
 public abstract class Command : ICommand
 {
     public int frame;
+    public int id;
     public virtual void Excute()
     {
         throw new System.NotImplementedException();
@@ -27,6 +33,10 @@ public abstract class Command : ICommand
         throw new NotImplementedException();
     }
 } 
+
+/// <summary>
+/// 移动命令类
+/// </summary>
 public class MoveCommand : Command
 {
     private CircleController controller;
@@ -37,17 +47,19 @@ public class MoveCommand : Command
         controller = circleController;
         cellMaker = _cellMaker;
         frame = circleController.GetRealFrameCount();
+        id = circleController.GetID();
     }
-    public MoveCommand(CircleController circleController,CellMaker _cellMaker,int x,int y):this(circleController, _cellMaker)
+    public MoveCommand(CircleController circleController,CellMaker _cellMaker,int x,int y)
+        :this(circleController, _cellMaker)
     {
         moveVec.x = x;
         moveVec.y = y;
     }
-    public MoveCommand(CircleController circleController, CellMaker _cellMaker, Vector3 _moveVec) : this(circleController, _cellMaker)
+    public MoveCommand(CircleController circleController, CellMaker _cellMaker, Vector3 _moveVec) 
+        : this(circleController, _cellMaker)
     {
         moveVec = _moveVec;
     }
-
     
     public override void Excute()
     {
@@ -62,7 +74,7 @@ public class MoveCommand : Command
 
     public override CommandData CreatCommandData()
     {
-        return new CommandData(CommandEnum.move, frame, moveVec.ToString());
+        return new CommandData(CommandEnum.move, id, frame, moveVec.ToString());
     }
 
     /// <summary>
@@ -80,21 +92,29 @@ public class MoveCommand : Command
     }
 }
 
+/// <summary>
+/// 命令枚举
+/// </summary>
 public enum CommandEnum
 {
     move=0
 }
 
+/// <summary>
+/// 命令信息类，用于json存储
+/// </summary>
 public class CommandData
 {
     public CommandEnum commandEnum;
     public int frame;
+    public int id;
     public string parameter;
     public CommandData(){}
-    public CommandData(CommandEnum _enum, int _frame, string _parameter)
+    public CommandData(CommandEnum _enum,int _id, int _frame, string _parameter)
     {
         commandEnum = _enum;
         frame = _frame;
+        id = _id;
         parameter = _parameter;
     }
     

@@ -47,7 +47,7 @@ public class MoveCommand : Command
         controller = circleController;
         cellMaker = _cellMaker;
         frame = circleController.GetRealFrameCount();
-        id = circleController.GetID();
+        id = circleController.id;
     }
     public MoveCommand(CircleController circleController,CellMaker _cellMaker,int x,int y)
         :this(circleController, _cellMaker)

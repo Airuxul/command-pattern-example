@@ -61,7 +61,6 @@ public class ReplayUIPanel : MonoBehaviour
             playButton.image.sprite = pauseImg;
             playButton.interactable = false;
             Mask.SetActive(false);
-            
         });
 
         playButton.onClick.AddListener(() =>
@@ -79,25 +78,21 @@ public class ReplayUIPanel : MonoBehaviour
         
         slider.onValueChanged.AddListener((val) =>
         {
-            if(!ReplayManager.GetInstance().isPlay)
-                ReplayManager.GetInstance().GoTargetFrame((int)slider.value);
+            //当player为false的时候，数据随UI变化
+            if (!ReplayManager.GetInstance().isPlay)
+                ReplayManager.GetInstance().curFrame = (int)val;
         });
         
     }
     
     /// <summary>
-    /// UI界面更新
+    /// 当player为true时，UI随数据更新
     /// </summary>
     private void Update()
     {
         if (ReplayManager.GetInstance().isPlay)
         {
             slider.value = ReplayManager.GetInstance().curFrame;
-            if (slider.value == ReplayManager.GetInstance().lastFrame)
-            {
-                ReplayManager.GetInstance().isPlay = false;
-                playButton.image.sprite = pauseImg;
-            }
         }
     }
 }

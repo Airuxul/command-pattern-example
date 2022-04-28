@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// 拓展Slider，增加添加事件
+/// 拓展Slider，增加点击事件
 /// </summary>
 public class ExtendedSlider :Slider
 {

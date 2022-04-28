@@ -7,15 +7,28 @@ using UnityEngine;
 /// </summary>
 public class CircleController : MonoBehaviour
 {
-    [SerializeField]
+    /// <summary>
+    /// 输入类
+    /// </summary>
     private CircleInput circleInput;
-    public CellMaker cellMaker; 
-    private int id;
-    public int GetID() { return id;}
+    
+    //地图类
+    public CellMaker cellMaker;
+    /// <summary>
+    /// 字典对应id
+    /// </summary>
+    public int id { get; private set; }
+    
+    /// <summary>
+    /// 开始帧
+    /// </summary>
     private int startFrame;
 
-    //通过临时变量减少Update的消耗
+    /// <summary>
+    /// 通过临时变量减少Update的消耗
+    /// </summary>
     private Command tempCommd;
+
     private void Start()
     {
         //初始化输入模块
@@ -27,14 +40,18 @@ public class CircleController : MonoBehaviour
         //位置归到地图原点
         Rest();
     }
+    
     void Update()
     {
+        //如果处于录像模式，直接返回
         if (ReplayManager.GetInstance().isReplay)
         {
             return;
         }
         
+        //获取Input输入命令
         tempCommd=circleInput.GetMoveCommand();
+        //不为空则执行且存入录像
         if (tempCommd != null)
         {
             tempCommd.Excute();
@@ -42,12 +59,19 @@ public class CircleController : MonoBehaviour
             tempCommd = null;
         }
     }
+    /// <summary>
+    /// 重置小圆位置，设置开始帧
+    /// </summary>
     public void Rest()
     {
         var initialPos = cellMaker.transform.position;
         transform.position = new Vector3(initialPos.x, initialPos.y, 0);
         startFrame = Time.frameCount;
     }
+    /// <summary>
+    /// 获取相对帧
+    /// </summary>
+    /// <returns></returns>
     public int GetRealFrameCount()
     {
         return Time.frameCount - startFrame;
@@ -71,6 +95,7 @@ public class CircleController : MonoBehaviour
             tempCommd.Undo();
         }
     }
+    
     /// <summary>
     /// 根据data创建Command类
     /// </summary>
@@ -85,6 +110,7 @@ public class CircleController : MonoBehaviour
         }
         return null;
     }
+    
     /// <summary>
     /// 根据vecString解析Vector3
     /// </summary>

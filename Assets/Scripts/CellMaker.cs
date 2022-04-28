@@ -16,6 +16,9 @@ public class CellMaker : MonoBehaviour
             DestroyImmediate( transform.GetChild(0).gameObject);
         }
     }
+    /// <summary>
+    /// 绘制地图
+    /// </summary>
     public void CreatCells()
     {
         DeleteCells();
@@ -35,6 +38,7 @@ public class CellMaker : MonoBehaviour
         }
     }
 
+    //获取最大Pos
     public Vector3 GetMaxPos()
     {
         return transform.position + new Vector3(xCount-1, yCount-1);

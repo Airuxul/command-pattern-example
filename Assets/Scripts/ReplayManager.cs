@@ -5,22 +5,72 @@ using UnityEngine;
 /// </summary>
 public class ReplayManager : BaseMonoManager<ReplayManager>
 {
+    /// <summary>
+    /// circle控制字典
+    /// </summary>
     private readonly Dictionary<int, CircleController> controllerDic = new Dictionary<int, CircleController>();
+    /// <summary>
+    /// 命令集
+    /// </summary>
     private List<CommandData> commands = new List<CommandData>(1000);
     private  int playerCount;
+    
+    /// <summary>
+    /// 录像最后帧
+    /// </summary>
     [HideInInspector]
     public  int lastFrame = -1;
-    [HideInInspector]
-    public  int curFrame;
+    /// <summary>
+    /// 当前播放帧
+    /// </summary>
+    private int _curFrame;
+    /// <summary>
+    /// 当前播放帧属性
+    /// </summary>
+    public int curFrame
+    {
+        get => _curFrame;
+        set => GoTargetFrame(value);
+    }
+    
+    /// <summary>
+    /// 到达目标帧
+    /// </summary>
+    /// <param name="targetFrame"></param>
+    private void GoTargetFrame(int targetFrame)
+    {
+        bool isExcute = targetFrame > _curFrame;
+        while (_curFrame != targetFrame)
+        {
+            _curFrame += (isExcute?1:-1);
+            if (isExcute &&_curFrame >= commands[curIndex].frame || !isExcute && _curFrame <= commands[curIndex].frame)
+            {
+                controllerDic[commands[curIndex].id].ControlByCommandData(commands[curIndex],isExcute);
+                curIndex=Mathf.Clamp(curIndex+(isExcute?1:-1),0,commands.Count-1);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 当前命令的下标
+    /// </summary>
     private  int curIndex;
-    
-    [HideInInspector]
-    public  bool isReplay;
 
+    /// <summary>
+    /// 是否处于录像模式
+    /// </summary>
+    public bool isReplay { private set; get; }
+
+    /// <summary>
+    /// 设定是否开始播放
+    /// </summary>
     public bool playOnAwake;
-    [HideInInspector]
-    public  bool isPlay;
-    
+
+    /// <summary>
+    /// 是否处于自动播放模式
+    /// </summary>
+    public bool isPlay { set; get; }
+
     /// <summary>
     /// 导入所有的Controller
     /// </summary>
@@ -50,6 +100,7 @@ public class ReplayManager : BaseMonoManager<ReplayManager>
         Debug.Log("Save Commands");
         JsonDataMgr.GetInstance().SaveToJson(commands,"Commands","Commands.json");
     }
+    
     /// <summary>
     /// 开始播放
     /// </summary>
@@ -68,36 +119,13 @@ public class ReplayManager : BaseMonoManager<ReplayManager>
         if (isReplay&& isPlay)
         {
             ++curFrame;
-            if (curFrame > commands[curIndex].frame)
+            if (curIndex >= commands.Count)
             {
-                controllerDic[commands[curIndex].id].ControlByCommandData(commands[curIndex]);
-                curIndex++;
-                if (curIndex >= commands.Count)
-                {
-                    isPlay = false;
-                }
+                isPlay = false;
             }
         }
     }
-
-    /// <summary>
-    /// 到达目标帧
-    /// </summary>
-    /// <param name="targetFrame"></param>
-    public void GoTargetFrame(int targetFrame)
-    {
-        bool isExcute = targetFrame > curFrame;
-        while (curFrame != targetFrame)
-        {
-            curFrame=curFrame+(isExcute?1:-1);
-            if (isExcute&&curFrame > commands[curIndex].frame || !isExcute && curFrame < commands[curIndex].frame)
-            {
-                controllerDic[commands[curIndex].id].ControlByCommandData(commands[curIndex],isExcute);
-                curIndex=Mathf.Max(0,curIndex+(isExcute?1:-1));
-            }
-        }
-    }
-
+    
     /// <summary>
     /// 加载命令Json文件
     /// </summary>
@@ -128,7 +156,7 @@ public class ReplayManager : BaseMonoManager<ReplayManager>
         }
         isReplay = false;
         lastFrame = -1;
-        curFrame = 0;
+        _curFrame = 0;
         curIndex = 0;
     }
 }

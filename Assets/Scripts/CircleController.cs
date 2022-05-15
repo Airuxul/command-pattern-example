@@ -10,6 +10,7 @@ public class CircleController : MonoBehaviour
     /// <summary>
     /// 输入类
     /// </summary>
+    [SerializeField]
     private CircleInput circleInput;
     
     //地图类

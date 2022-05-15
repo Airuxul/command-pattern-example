@@ -18,8 +18,13 @@ public class ReplayManager : BaseMonoManager<ReplayManager>
     /// <summary>
     /// 录像最后帧
     /// </summary>
-    [HideInInspector]
-    public  int lastFrame = -1;
+    private  int lastFrame = -1;
+
+    public int GetLastFrame()
+    {
+        return lastFrame;
+    }
+    
     /// <summary>
     /// 当前播放帧
     /// </summary>
@@ -102,31 +107,6 @@ public class ReplayManager : BaseMonoManager<ReplayManager>
     }
     
     /// <summary>
-    /// 开始播放
-    /// </summary>
-    public void StartReplay()
-    {
-        LoadJson();
-        isReplay = true;
-        isPlay = playOnAwake;
-    }
-
-    /// <summary>
-    /// 自动播放更新
-    /// </summary>
-    private void Update()
-    {
-        if (isReplay&& isPlay)
-        {
-            ++curFrame;
-            if (curIndex >= commands.Count)
-            {
-                isPlay = false;
-            }
-        }
-    }
-    
-    /// <summary>
     /// 加载命令Json文件
     /// </summary>
     private void LoadJson()
@@ -142,6 +122,32 @@ public class ReplayManager : BaseMonoManager<ReplayManager>
         else
         {
             Debug.LogError("json中没有命令，请输入后存储再加载");
+        }
+    }
+    
+    
+    /// <summary>
+    /// 开始播放
+    /// </summary>
+    public void StartReplay()
+    {
+        LoadJson();
+        isReplay = true;
+        isPlay = playOnAwake;
+    }
+    
+    /// <summary>
+    /// 自动播放更新
+    /// </summary>
+    private void Update()
+    {
+        if (isReplay&& isPlay)
+        {
+            ++curFrame;
+            if (curIndex >= commands.Count)
+            {
+                isPlay = false;
+            }
         }
     }
     

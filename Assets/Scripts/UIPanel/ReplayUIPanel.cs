@@ -45,7 +45,7 @@ public class ReplayUIPanel : MonoBehaviour
         {
             ReplayManager.GetInstance().StartReplay();
             slider.interactable = true;
-            slider.maxValue = ReplayManager.GetInstance().lastFrame;
+            slider.maxValue = ReplayManager.GetInstance().GetLastFrame();
 
             playButton.image.sprite = ReplayManager.GetInstance().isPlay ? playImg : pauseImg;
             playButton.interactable = true;
